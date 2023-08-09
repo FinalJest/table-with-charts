@@ -1,7 +1,8 @@
 import React from "react";
 import {IPerson} from "../types/IPerson";
-import {convertDateObjectToString} from "../services/dateService";
 import {requestData} from "../services/requestService";
+import DataTable from "../components/DataTable";
+import SortingContainer from "../components/SortingContainer";
 
 export default function Table() {
     const [data, setData] = React.useState<IPerson[]>([]);
@@ -10,35 +11,14 @@ export default function Table() {
             setData(newData);
         });
     }, []);
+    const handleDataSorted = (newData: IPerson[]) => {
+        setData(newData);
+    };
 
     return (
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>First Name</th>
-                    <th>Last Name</th>
-                    <th>Email</th>
-                    <th>DOB</th>
-                    <th>Industry</th>
-                    <th>Salary</th>
-                    <th>YOE</th>
-                </tr>
-            </thead>
-            <tbody>
-                {data.map((person) => (
-                    <tr key={person.id}>
-                        <td>{person.id}</td>
-                        <td>{person.firstName}</td>
-                        <td>{person.lastName}</td>
-                        <td>{person.email}</td>
-                        <td>{convertDateObjectToString(person.dateOfBirth)}</td>
-                        <td>{person.id}</td>
-                        <td>{person.id}</td>
-                        <td>{person.id}</td>
-                    </tr>
-                ))}
-            </tbody>
-        </table>
+        <div>
+            <SortingContainer data={data} onDataSorted={handleDataSorted} />
+            <DataTable data={data} />
+        </div>
     );
 }

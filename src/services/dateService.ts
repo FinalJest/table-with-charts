@@ -5,7 +5,7 @@ export function parseStringToDateObject(dateString: string): Date {
 }
 
 export function convertDateObjectToString(dateObject: Date): string {
-    const printedDay = String(dateObject.getDay()).padStart(2, "0");
+    const printedDay = String(dateObject.getDate()).padStart(2, "0");
     const printedMonth = String(dateObject.getMonth() + 1).padStart(2, "0");
     const printedYear = String(dateObject.getFullYear());
     return `${printedDay}/${printedMonth}/${printedYear}`;
