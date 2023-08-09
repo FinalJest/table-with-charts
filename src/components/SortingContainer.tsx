@@ -1,8 +1,8 @@
 import SortingSelect from "./SortingSelect";
 import React from "react";
 import {PersonSortingOption, SortByDOB, SortById, SortByIncome, SortByIndustry} from "../services/sortingService";
-import {IPerson} from "../types/IPerson";
 import OrderButton from "./OrderButton";
+import {useTableContext} from "../contexts/TableContext";
 
 const sortingOptions: PersonSortingOption[] = [
     new SortById(),
@@ -11,20 +11,15 @@ const sortingOptions: PersonSortingOption[] = [
     new SortByIndustry(),
 ];
 
-// There is a lot of entanglement to IPerson interface in this code, for larger project deeper abstraction needed
-interface SortingContainerProps {
-    data: IPerson[];
-    onDataSorted(newData: IPerson[]): void;
-}
-
-export default function SortingContainer(props: SortingContainerProps) {
+export default function SortingContainer() {
+    const { data, updateData } = useTableContext();
     const [isDescending, setIsDescending] = React.useState(false);
     const [currentSortingOption, setCurrentSortingOption] = React.useState(sortingOptions[0]);
     const sortTable = (sortingOption: PersonSortingOption, currentIsDescending: boolean) => {
         // Sadly .toSorted is not supported in Node yet
-        const newData = [...props.data].sort((a, b) =>
+        const newData = [...data].sort((a, b) =>
             sortingOption.sortFunction(a, b, currentIsDescending));
-        props.onDataSorted(newData);
+        updateData(newData);
         setCurrentSortingOption(sortingOption);
     }
     const handleSortingOptionChange = (newValue: PersonSortingOption["value"]) => {
