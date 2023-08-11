@@ -19,20 +19,20 @@ export default function Table() {
             setVisibleData(newData.slice(0, DEFAULT_ITEM_PER_PAGE_COUNT));
         });
     }, []);
-
-    const handleCountUpdate = React.useCallback((newCount: number) => {
-        setCount(newCount);
-    }, []);
+    const handleSetLimit = React.useCallback((newLimit: number) => {
+        setLimit(newLimit);
+        setCount(Math.floor(count / newLimit) * newLimit);
+    }, [count]);
     const context = React.useMemo(() => {
         return {
             data,
             updateData: setData,
             count,
-            updateCount: handleCountUpdate,
+            updateCount: setCount,
             limit,
-            updateLimit: setLimit,
+            updateLimit: handleSetLimit,
         };
-    }, [data, count, handleCountUpdate, limit]);
+    }, [data, count, limit, handleSetLimit]);
     React.useEffect(() => {
         setVisibleData(data.slice(count, count + limit));
     }, [data, count, limit]);
