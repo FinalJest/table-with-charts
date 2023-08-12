@@ -1,10 +1,19 @@
 import {useTableContext} from "../contexts/TableContext";
 import PageLink from "./PageLink";
 
-export default function PageSwitcher() {
-    const { count, limit, data } = useTableContext();
+interface PageSwitcherProps {
+    visibleDataLength: number;
+}
+
+export default function PageSwitcher(props: PageSwitcherProps) {
+    const { count, limit } = useTableContext();
     const currentPage = Math.floor(count / limit) + 1;
-    const lastPage = Math.floor(data.length / limit);
+    const lastPage = Math.floor(props.visibleDataLength / limit);
+
+    if (lastPage === 0) {
+        return null;
+    }
+
     return (
         <div>
             <PageLink isEnabled={currentPage !== 1} page={1} />

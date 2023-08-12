@@ -8,6 +8,8 @@ interface ITableContext {
     updateCount(newCount: number): void;
     limit: number;
     updateLimit(newLimit: number): void;
+    filter: string;
+    updateFilter(newFilter: string): void;
 }
 
 const initialContextValue: ITableContext = {
@@ -17,6 +19,8 @@ const initialContextValue: ITableContext = {
     updateCount: () => {},
     limit: 0,
     updateLimit: () => {},
+    filter: "",
+    updateFilter: () => {},
 };
 
 export const TableContext = React.createContext<ITableContext>(initialContextValue);
