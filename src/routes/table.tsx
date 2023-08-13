@@ -7,6 +7,7 @@ import {requestData} from "../services/requestService";
 import {TableContext} from "../contexts/TableContext";
 import PageSwitcher from "../components/PageSwitcher";
 import {getFullName} from "../services/personService";
+import {Link} from "react-router-dom";
 
 interface TableState {
     data: IPerson[];
@@ -102,6 +103,7 @@ export default function Table() {
     return (
         <TableContext.Provider value={context}>
             <div>
+                <Link to="/">Home</Link>
                 <TableHeader />
                 <DataTable data={visibleData} />
                 <PageSwitcher visibleDataLength={filteredData.length} />

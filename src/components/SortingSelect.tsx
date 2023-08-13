@@ -1,5 +1,5 @@
-import {ChangeEventHandler} from "react";
 import {PersonSortingOption} from "../services/sortingService";
+import Select from "./Select";
 
 interface SortingSelectProps {
     options: PersonSortingOption[];
@@ -7,13 +7,11 @@ interface SortingSelectProps {
 }
 
 export default function SortingSelect(props: SortingSelectProps) {
-    const handleChange: ChangeEventHandler<HTMLSelectElement> = (event) => {
-        props.onChange(event.target.value);
-    };
     return (
-        <select onChange={handleChange}>
-            {props.options.map((option) =>
-                <option key={option.value} value={option.value}>{option.text}</option> )}
-        </select>
-    );
+        <Select<PersonSortingOption, PersonSortingOption["value"]>
+            options={props.options}
+            onChange={props.onChange}
+            getValueFromOption={(option) => option.value}
+        />
+    )
 }

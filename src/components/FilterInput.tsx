@@ -1,14 +1,16 @@
-import {useTableContext} from "../contexts/TableContext";
 import React from "react";
 import "./FilterInput.css";
 
-export default function FilterInput() {
-    const { updateFilter } = useTableContext();
+interface FilterInputProps {
+    updateFilter: (newFilter: string) => void;
+}
+
+export default function FilterInput(props: FilterInputProps) {
     const filterInput = React.useRef<HTMLInputElement>(null);
     const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
         e.preventDefault();
         if (filterInput.current) {
-            updateFilter(filterInput.current.value);
+            props.updateFilter(filterInput.current.value);
         }
     };
 

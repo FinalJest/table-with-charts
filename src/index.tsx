@@ -8,6 +8,7 @@ import './index.css';
 import reportWebVitals from './reportWebVitals';
 import Root from "./routes/root";
 import Table from "./routes/table";
+import ChartPage from "./routes/chart";
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -21,7 +22,11 @@ const router = createBrowserRouter([
     {
         path: "/table",
         element: <Table />,
-    }
+    },
+    {
+        path: "/chart",
+        element: <ChartPage />,
+    },
 ]);
 
 root.render(
