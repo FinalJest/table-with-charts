@@ -16,6 +16,7 @@ export default function FilterInput(props: FilterInputProps) {
 
     return (
         <form onSubmit={handleSubmit} className="FilterContainer">
+            <div>Filter Input:</div>
             <input ref={filterInput} type="text" />
             <button>Apply</button>
         </form>

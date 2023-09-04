@@ -1,7 +1,7 @@
 import {IPerson} from "../types/IPerson";
 import React from "react";
 
-interface ITableContext {
+export interface ITableContext {
     data: IPerson[];
     updateData(newData: IPerson[]): void;
     count: number;

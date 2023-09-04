@@ -16,6 +16,10 @@ td {
   border: 1px solid black;
 }
 
+button {
+  cursor: pointer;
+}
+
 .Home {
   display: flex;
   flex-direction: column;

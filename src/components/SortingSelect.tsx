@@ -12,6 +12,7 @@ export default function SortingSelect(props: SortingSelectProps) {
             options={props.options}
             onChange={props.onChange}
             getValueFromOption={(option) => option.value}
+            getTextFromOption={(option) => option.text}
         />
     )
 }

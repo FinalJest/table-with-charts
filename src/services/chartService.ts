@@ -9,6 +9,7 @@ interface DataPoint {
 
 export interface ChartOfPerson {
     id: string;
+    name: string;
     chartObject: Chart | null;
     getChartData(data: IPerson[]): DataPoint[];
     setChart(chart: Chart<any>): void; // decided not to fight types of this library for test task
@@ -17,6 +18,7 @@ export interface ChartOfPerson {
 
 abstract class BaseChart implements ChartOfPerson {
     id = "base";
+    name = "Base";
     chartObject: Chart | null = null;
     getChartData(data: IPerson[]): DataPoint[] {
         return [];
@@ -29,106 +31,103 @@ abstract class BaseChart implements ChartOfPerson {
     }
 }
 
-const getDecadeFromLabel = (label: string) => label.slice(0, 3);
+const convertMapToSortedArray = <T>(map: Map<number, T>) => Array.from(map.entries())
+    .sort((a, b) => a[0] - b[0]);
+
+const getColorFromIndex = (index: number, arrayLength: number) =>
+    `rgb(${index * (255 / arrayLength)}, 0, ${255 - index * (255 / arrayLength)})`;
+
+function genericGetChartData<T>(
+    data: T[],
+    getKey: (element: T) => number | undefined,
+): DataPoint[] {
+    let keyValueNotSetCount = 0;
+    const dataList = data.reduce<Map<number, number>>((result, person) => {
+        const keyValue = getKey(person);
+        if (keyValue === undefined) {
+            keyValueNotSetCount++;
+            return result;
+        }
+        const currentResult = result.get(keyValue);
+        const newValue = (currentResult ?? 0) + 1;
+        result.set(keyValue, newValue);
+        return result;
+    }, new Map<number, number>());
+    const result = convertMapToSortedArray(dataList);
+    const dataPoints = result.map(([key, count], index) => ({
+        label: `${key}`,
+        value: count,
+        backgroundColor: getColorFromIndex(index, result.length),
+    }));
+    return keyValueNotSetCount ?
+        [...dataPoints, { label: "Not Assigned", value: keyValueNotSetCount, backgroundColor: "rgb(116,116,116)" }]
+        : dataPoints;
+}
 
 export class YearsOfBirthChart extends BaseChart {
     id = "yearsOfBirth";
+    name = "Years Of Birth";
     getChartData(data: IPerson[]): DataPoint[] {
-        const result: DataPoint[] = [
-            { label: "1960s", value: 0, backgroundColor: "rgb(255, 99, 132)" },
-            { label: "1970s", value: 0, backgroundColor: "rgb(54, 162, 235)" },
-            { label: "1980s", value: 0, backgroundColor: "rgb(255, 205, 86)" },
-            { label: "1990s", value: 0, backgroundColor: "rgb(52,179,37)" },
-        ];
-        let othersCount = 0;
-        data.forEach((person) => {
-            const personsDataPoint = result.find((dataPoint) => {
-                const decade = getDecadeFromLabel(dataPoint.label);
-                return `${person.dateOfBirth.getFullYear()}`.startsWith(decade);
-            });
-            if (personsDataPoint) {
-                personsDataPoint.value++;
-            } else {
-                othersCount++;
-            }
-        });
-        return [
-            ...result,
-            { label: "Other", value: othersCount, backgroundColor: "rgb(116,116,116)" },
-        ].filter((dataPoint) => dataPoint.value > 0);
+        return genericGetChartData(
+            data,
+            (person) => {
+                const year = person.dateOfBirth.getFullYear();
+                return year - year % 10;
+            },
+        ).map((dataPoint) => ({ ...dataPoint, label: `${dataPoint.label}s` }));
     };
-}
-
-function increaseValueOfPoint(label: string, result: DataPoint[]) {
-    const point = result.find((point) => point.label === label);
-    if (point) {
-        point.value++;
-    }
 }
 
 export class SalaryChart extends BaseChart {
     id = "salary";
-    getChartData(data: IPerson[]): DataPoint[] {
-        const result: DataPoint[] = [
-            { label: "<40k", value: 0, backgroundColor: "rgb(255, 99, 132)" },
-            { label: "40k - 79k", value: 0, backgroundColor: "rgb(54, 162, 235)" },
-            { label: "80k - 119k", value: 0, backgroundColor: "rgb(255, 205, 86)" },
-            { label: ">120k", value: 0, backgroundColor: "rgb(52,179,37)" },
-            { label: "None", value: 0, backgroundColor: "rgb(116,116,116)" },
-        ];
-        // Has to be a better way to organize it
-        data.forEach((person) => {
-            if (person.salary === undefined) {
-                increaseValueOfPoint("None", result);
-                return;
-            }
-            if (person.salary < 40000) {
-                increaseValueOfPoint("<40k", result);
-                return;
-            }
-            if (person.salary < 80000) {
-                increaseValueOfPoint("40k - 79k", result);
-                return;
-            }
-            if (person.salary < 120000) {
-                increaseValueOfPoint("80k - 119k", result);
-                return;
-            }
-            increaseValueOfPoint(">120k", result);
-        });
-        return result;
+    name = "Rounded Salary";
+    getChartData(data: IPerson[]) {
+        return genericGetChartData(data, (person) =>
+            person.salary && (Math.round(person.salary / 10000) * 10000)
+        );
     }
 }
 
 export class YearsOfExperienceChart extends BaseChart {
     id = "yearsOfExperience";
+    name = "Years Of Experience";
     getChartData(data: IPerson[]): DataPoint[] {
-        const result: DataPoint[] = [
-            { label: "<2", value: 0, backgroundColor: "rgb(255, 99, 132)" },
-            { label: "2-4", value: 0, backgroundColor: "rgb(54, 162, 235)" },
-            { label: "4-6", value: 0, backgroundColor: "rgb(255, 205, 86)" },
-            { label: ">6", value: 0, backgroundColor: "rgb(52,179,37)" },
-            { label: "None", value: 0, backgroundColor: "rgb(116,116,116)" },
-        ];
-        data.forEach((person) => {
-            if (person.yearsOfExperience === undefined) {
-                increaseValueOfPoint("None", result);
-                return;
+        return genericGetChartData(data, (person) =>
+            person.yearsOfExperience && Math.round(person.yearsOfExperience)
+        );
+    }
+}
+
+export class AverageSalaryPerYearsOfExperienceChart extends BaseChart {
+    id = "averageSalaryPerYOE";
+    name = "Average Salary Per Years of Experience";
+    getChartData(data: IPerson[]): DataPoint[] {
+        type DataMap = Map<number, { total: number, count: number }>;
+        function fillDataMap(result: DataMap, person: IPerson) {
+            if (person.salary === undefined || person.yearsOfExperience === undefined) {
+                return result;
             }
-            if (person.yearsOfExperience < 2) {
-                increaseValueOfPoint("<2", result);
-                return;
+            const roundedYearsOfExperience = Math.round(person.yearsOfExperience);
+            const previousValue = result.get(roundedYearsOfExperience);
+            if (previousValue) {
+                result.set(
+                    roundedYearsOfExperience,
+                    { total: previousValue.total + person.salary, count: previousValue.count + 1 },
+                );
+            } else {
+                result.set(
+                    roundedYearsOfExperience,
+                    { total: person.salary, count: 1 },
+                );
             }
-            if (person.yearsOfExperience < 4) {
-                increaseValueOfPoint("2-4", result);
-                return;
-            }
-            if (person.yearsOfExperience < 6) {
-                increaseValueOfPoint("4-6", result);
-                return;
-            }
-            increaseValueOfPoint(">6", result);
-        });
-        return result;
+            return result;
+        }
+        const dataMap = data.reduce<DataMap>(fillDataMap, new Map());
+        const sortedDataArray = convertMapToSortedArray(dataMap);
+        return sortedDataArray.map(([years, salaryResult], index) => ({
+            label: `${years}`,
+            value: Math.round(salaryResult.total / salaryResult.count),
+            backgroundColor: getColorFromIndex(index, sortedDataArray.length),
+        }));
     }
 }

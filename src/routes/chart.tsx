@@ -1,30 +1,38 @@
 import React from "react";
+import {Link} from "react-router-dom";
+import {ChartType} from "chart.js";
 import {IPerson} from "../types/IPerson";
 import {requestData} from "../services/requestService";
-import {ChartOfPerson, SalaryChart, YearsOfBirthChart, YearsOfExperienceChart} from "../services/chartService";
+import {
+    AverageSalaryPerYearsOfExperienceChart,
+    ChartOfPerson,
+    SalaryChart,
+    YearsOfBirthChart,
+    YearsOfExperienceChart
+} from "../services/chartService";
 import ChartCanvasContainer from "../components/ChartCanvasContainer";
 import ChartDataSelect from "../components/ChartDataSelect";
-import {ChartType} from "chart.js";
 import ChartTypeSelect from "../components/ChartTypeSelect";
 import {getFullName} from "../services/personService";
 import FilterInput from "../components/FilterInput";
-import {Link} from "react-router-dom";
+import Header from "../components/Header";
 
 const CHART_OPTIONS = [
+    new AverageSalaryPerYearsOfExperienceChart(),
     new YearsOfBirthChart(),
     new SalaryChart(),
     new YearsOfExperienceChart(),
 ];
 
 const CHART_TYPES: ChartType[] = [
-    "pie",
     "bar",
+    "pie",
 ]
 
 export default function ChartPage() {
     const [data, setData] = React.useState<IPerson[]>([]);
     const [chart, setChart] = React.useState<ChartOfPerson>(CHART_OPTIONS[0]);
-    const [type, setType] = React.useState<ChartType>("pie");
+    const [type, setType] = React.useState<ChartType>(CHART_TYPES[0]);
     const [filter, setFilter] = React.useState("");
     React.useEffect(() => {
         requestData().then((newData) => {
@@ -46,11 +54,11 @@ export default function ChartPage() {
     return (
         <div>
             <Link to="/">Home</Link>
-            <div>
+            <Header>
                 <ChartDataSelect options={CHART_OPTIONS} onChange={handleChangeChartData} />
                 <ChartTypeSelect options={CHART_TYPES} onChange={handleChangeChartType} />
                 <FilterInput updateFilter={setFilter} />
-            </div>
+            </Header>
             <ChartCanvasContainer chart={chart} data={filteredData} type={type} />
         </div>
     );

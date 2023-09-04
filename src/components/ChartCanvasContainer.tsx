@@ -25,7 +25,7 @@ export default function ChartCanvasContainer({ data, chart, type }: ChartCanvasC
                     data: {
                         labels: chartData.map((dataPoint) => dataPoint.label),
                         datasets: [{
-                            label: chart.id,
+                            label: chart.name,
                             data: chartData.map((dataPoint) => dataPoint.value),
                             backgroundColor: chartData.map((dataPoint) => dataPoint.backgroundColor),
                             hoverOffset: 4

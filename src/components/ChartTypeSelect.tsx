@@ -12,6 +12,7 @@ export default function ChartTypeSelect(props: ChartTypeSelectProps) {
             options={props.options}
             onChange={props.onChange}
             getValueFromOption={(option) => option}
+            getTextFromOption={(option) => `${option[0].toUpperCase()}${option.slice(1)}`}
         />
     );
 }

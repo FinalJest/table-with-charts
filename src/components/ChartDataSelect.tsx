@@ -12,6 +12,7 @@ export default function ChartDataSelect(props: ChartDataSelectProps) {
             options={props.options}
             onChange={props.onChange}
             getValueFromOption={(option) => option.id}
+            getTextFromOption={(option) => option.name}
         />
     );
 }

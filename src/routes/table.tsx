@@ -4,29 +4,10 @@ import DataTable from "../components/DataTable";
 import TableHeader from "../components/TableHeader";
 import {DEFAULT_ITEM_PER_PAGE_COUNT} from "../services/pagingService";
 import {requestData} from "../services/requestService";
-import {TableContext} from "../contexts/TableContext";
+import {ITableContext, TableContext} from "../contexts/TableContext";
 import PageSwitcher from "../components/PageSwitcher";
 import {getFullName} from "../services/personService";
 import {Link} from "react-router-dom";
-
-interface TableState {
-    data: IPerson[];
-    count: number;
-    limit: number;
-    filter: string;
-}
-
-const initialState: TableState = {
-    data: [],
-    count: 0,
-    limit: DEFAULT_ITEM_PER_PAGE_COUNT,
-    filter: "",
-};
-
-type TableAction = { type: "SET_DATA", value: IPerson[]; }
-    | { type: "SET_COUNT", value: number }
-    | { type: "SET_LIMIT", value: number }
-    | { type: "SET_FILTER", value: string };
 
 export function getFilteredData(data: IPerson[], filter: string): IPerson[] {
     return data.filter((person) => getFullName(person).includes(filter.toLowerCase()));
@@ -36,69 +17,42 @@ function getVisibleData(data: IPerson[], count: number, limit: number): IPerson[
     return data.slice(count, count + limit);
 }
 
-function reducer(state: TableState, action: TableAction): TableState {
-    switch (action.type) {
-        case "SET_DATA":
-            return {
-                ...state,
-                data: action.value,
-            };
-        case "SET_COUNT":
-            return {
-                ...state,
-                count: action.value,
-            };
-        case "SET_LIMIT": {
-            const newCount = Math.floor(state.count / action.value) * action.value
-            return {
-                ...state,
-                limit: action.value,
-                count: newCount,
-            }
-        }
-        case "SET_FILTER":
-            return {
-                ...state,
-                filter: action.value,
-                count: 0,
-            }
-        default:
-            return state;
-    }
-}
-
 export default function Table() {
-    const [state, dispatch] = React.useReducer(reducer, initialState);
+    const [data, setData] = React.useState<IPerson[]>([]);
+    const [count, setCount] = React.useState<number>(0);
+    const [limit, setLimit] = React.useState<number>(DEFAULT_ITEM_PER_PAGE_COUNT);
+    const [filter, setFilter] = React.useState<string>("");
     React.useEffect(() => {
         requestData().then((newData) => {
-            dispatch({ type: "SET_DATA", value: newData });
+            setData(newData);
         });
     }, []);
-    // Don't like this boilerplate, would probably be replaced by Redux in larger app
-    const handlers = React.useMemo(() => {
-        const setDataAction = (newData: IPerson[]) => dispatch({ type: "SET_DATA", value: newData });
-        const setCountAction = (newCount: number) => dispatch({ type: "SET_COUNT", value: newCount });
-        const setLimitAction = (newLimit: number) => dispatch({ type: "SET_LIMIT", value: newLimit });
-        const setFilterAction = (newFilter: string) => dispatch({ type: "SET_FILTER", value: newFilter });
+    const context: ITableContext = React.useMemo(() => {
         return {
-            setDataAction,
-            setCountAction,
-            setLimitAction,
-            setFilterAction,
+            data,
+            count,
+            limit,
+            filter,
+            updateData: (newData) => {
+                setData(newData);
+            },
+            updateCount: (newCount) => {
+                setCount(newCount);
+            },
+            updateLimit: (newLimit) => {
+                const newCount = Math.floor(count / newLimit) * newLimit;
+                setLimit(newLimit);
+                setCount(newCount);
+            },
+            updateFilter: (newFilter) => {
+                setFilter(newFilter);
+                setCount(0);
+            },
         };
-    }, []);
-    const context = React.useMemo(() => {
-        return {
-            ...state,
-            updateData: handlers.setDataAction,
-            updateCount: handlers.setCountAction,
-            updateLimit: handlers.setLimitAction,
-            updateFilter: handlers.setFilterAction,
-        };
-    }, [state, handlers]);
+    }, [data, count, limit, filter]);
 
-    const filteredData = getFilteredData(state.data, state.filter);
-    const visibleData = getVisibleData(filteredData, state.count, state.limit);
+    const filteredData = getFilteredData(data, filter);
+    const visibleData = getVisibleData(filteredData, count, limit);
 
     return (
         <TableContext.Provider value={context}>

@@ -4,9 +4,9 @@ interface SelectProps<OptionType, ChangeValueType extends string> {
     options: OptionType[];
     onChange(newValue: ChangeValueType): void;
     getValueFromOption(option: OptionType): ChangeValueType;
+    getTextFromOption(option: OptionType): string;
 }
 
-// Would be good to have generic select component
 export default function Select<OptionType, ChangeValueType extends string>(
     props: SelectProps<OptionType, ChangeValueType>
 ) {
@@ -17,7 +17,7 @@ export default function Select<OptionType, ChangeValueType extends string>(
         <select onChange={handleChange}>
             {props.options.map((option) => {
                 const value = props.getValueFromOption(option);
-                return <option key={value} value={value}>{value}</option>;
+                return <option key={value} value={value}>{props.getTextFromOption(option)}</option>;
             })}
         </select>
     )

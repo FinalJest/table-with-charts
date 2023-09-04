@@ -1,6 +1,10 @@
-# Getting Started with Create React App
+# The Task
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+The task here was to create two pages: a table with data and a pie chart that represents said data.
+
+It needed to have sorting, filtering and pages for the table and multiple options for type and representation of the pie chart.
+
+**Styling was to be neglected.**
 
 ## Available Scripts
 
